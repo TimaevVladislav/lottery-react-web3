@@ -1,10 +1,13 @@
-import React from 'react'
+import React from "react"
+import {ManagerCard} from "./components/ManagerCard"
 
 function App() {
-  return (
-    <div className="App">
 
-    </div>
+  return (
+    <>
+      <ManagerCard />
+
+    </>
   )
 }
 
