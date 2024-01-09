@@ -7,6 +7,7 @@ export const ManagerCard = () => {
     const [players, setPlayers] = useState<[]>([])
     const [balance, setBalance] = useState<number>(0)
     const [amount, setAmount] = useState<string>("")
+    const [message, setMessage] = useState<string>("")
 
     useEffect(() => {
         fetchContractInformation()
@@ -21,16 +22,33 @@ export const ManagerCard = () => {
         setBalance(balance)
         setPlayers(players)
         setManager(manager)
+        setMessage("")
+    }
+
+    const enterAccountAmount = async () => {
+        const accounts: string[] = await web3.eth.getAccounts()
+        setMessage("Waiting on transaction success...")
+        await lottery.methods.enter().send({ from: accounts[0], value: web3.utils.toWei(amount, "ether")})
+        setMessage("You have been entered!")
+    }
+
+    const pickWinnerRandom = async () => {
+        const accounts: string[] = await web3.eth.getAccounts()
+        setMessage("Waiting on transaction success...")
+        await lottery.methods.pickPlayerWinner().send({ from: accounts[0], value: web3.utils.toWei(amount, "ether")})
+        setMessage("A winner has been picked!")
     }
 
     const submitContractInformation = async (e: FormEvent) => {
        e.preventDefault()
+       await enterAccountAmount()
     }
 
     return (
         <>
             <div className="lottery-container">
                 <h2 className="lottery-title">Lottery Contract</h2>
+
                 <p className="lottery-description">
                     This contract is managed by {manager}. There are currently {players.length} people entered,
                     competing to win{" "}
@@ -58,6 +76,21 @@ export const ManagerCard = () => {
                         Enter
                     </button>
                 </form>
+
+                <hr className="lottery-divider" />
+
+                <h4>Ready to pick a winner?</h4>
+
+                <button
+                    className="lottery-button"
+                    onClick={pickWinnerRandom}
+                >
+                    Pick a winner!
+                </button>
+
+                <hr className="lottery-divider" />
+
+                <h2>{message}</h2>
             </div>
         </>
     )
