@@ -4,8 +4,8 @@ import {web3} from "../web3"
 
 export const ManagerCard = () => {
     const [manager, setManager] = useState<string>("")
-    const [players, setPlayers] = useState<[]>([])
-    const [balance, setBalance] = useState<number>(0)
+    const [players, setPlayers] = useState<string[]>([])
+    const [balance, setBalance] = useState<string>("0")
     const [amount, setAmount] = useState<string>("")
     const [message, setMessage] = useState<string>("")
 
@@ -26,17 +26,25 @@ export const ManagerCard = () => {
     }
 
     const enterAccountAmount = async () => {
-        const accounts: string[] = await web3.eth.getAccounts()
-        setMessage("Waiting on transaction success...")
-        await lottery.methods.enter().send({ from: accounts[0], value: web3.utils.toWei(amount, "ether")})
-        setMessage("You have been entered!")
+        try {
+            const accounts: string[] = await web3.eth.getAccounts()
+            setMessage("Waiting on transaction success...")
+            await lottery.methods.enter().send({ from: accounts[0], value: web3.utils.toWei(amount, "ether")})
+            setMessage("You have been entered!")
+        } catch (e: any) {
+            setMessage(e.message)
+        }
     }
 
     const pickWinnerRandom = async () => {
-        const accounts: string[] = await web3.eth.getAccounts()
-        setMessage("Waiting on transaction success...")
-        await lottery.methods.pickPlayerWinner().send({ from: accounts[0], value: web3.utils.toWei(amount, "ether")})
-        setMessage("A winner has been picked!")
+        try {
+            const accounts: string[] = await web3.eth.getAccounts()
+            setMessage("Waiting on transaction success...")
+            await lottery.methods.pickPlayerWinner().send({ from: accounts[0], value: web3.utils.toWei(amount, "ether")})
+            setMessage("A winner has been picked!")
+        } catch (e: any) {
+            setMessage(e.message)
+        }
     }
 
     const submitContractInformation = async (e: FormEvent) => {
@@ -51,8 +59,8 @@ export const ManagerCard = () => {
 
                 <p className="lottery-description">
                     This contract is managed by {manager}. There are currently {players.length} people entered,
-                    competing to win{" "}
-                    {web3.utils.fromWei(balance, "ether")} ether!
+                    competing to win {" "}
+                    {web3.utils.fromWei(balance, "ether").toString()} ether!
                 </p>
 
                 <hr className="lottery-divider" />
@@ -62,6 +70,7 @@ export const ManagerCard = () => {
 
                     <div className="lottery-form-group">
                         <label>Amount of ether to enter</label>
+
                         <input
                             value={amount}
                             onChange={(event: ChangeEvent<HTMLInputElement>) => setAmount(event.target.value)}
